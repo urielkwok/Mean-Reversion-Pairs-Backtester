@@ -10,5 +10,6 @@ spread = stock_df[STOCK_1] - stock_df[STOCK_2]
 stationary = an.adf_test(spread)
 if stationary is True:
     print("Spread is stationary")
+    print(an.z_score(spread))
 else:
     print("Spread is not stationary.")
