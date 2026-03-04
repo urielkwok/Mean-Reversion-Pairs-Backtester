@@ -1,8 +1,11 @@
 import src.data_loader as dl
+import src.analysis as an
 
 START_DATE, END_DATE = dl.get_dates()
 STOCK_1 = "KO"
 STOCK_2 = "PEP"
 
 stock_df = dl.get_data(STOCK_1, STOCK_2, START_DATE, END_DATE)
-print(stock_df)
+spread = stock_df[STOCK_1] - stock_df[STOCK_2]
+adf_result = an.adf_test(spread)
+print(adf_result)
