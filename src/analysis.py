@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import statsmodels.tsa.stattools as sm
 
 
@@ -30,10 +31,12 @@ def OLS_regression(ind_stock: np.NDArray, dep_stock: np.NDArray) -> tuple[float,
     return alpha, beta
 
 
-def z_score(series: np.ndarray) -> np.NDArray[np.float64]:
+def rolling_z_score(series: pd.Series, window: int) -> np.NDArray[np.float64]:
     """
-    Requires; Nothing
+    Requires: Nothing
     Modifies: Nothing
-    Returns: z-score for each entry in the series
+    Returns: Rolling z-score for each entry
     """
-    return (series - np.mean(series)) / np.std(series)
+    rolling_mean = series.rolling(window).mean()
+    rolling_std = series.rolling(window).std()
+    return (series - rolling_mean) / rolling_std
