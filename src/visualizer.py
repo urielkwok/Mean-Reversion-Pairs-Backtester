@@ -2,15 +2,25 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def plot_z_values(z_values: pd.Series) -> None:
+def plot_values(stock_df: pd.DataFrame) -> None:
     """
     Requires: Nothing
     Modifies: Nothing
-    Effects: Plot of z-values vs time
+    Effects: Plot z-score and returns vs time
     """
-    plt.figure(figsize=(8,5))
-    plt.plot(z_values)
-    plt.xlabel("Time")
-    plt.ylabel("Z-Values")
-    plt.title("Z-Values vs Time")
-    plt.savefig("z_values.png")
+    z_values = stock_df["z-score"].dropna()
+    returns = stock_df["cumulative_returns"].dropna()
+    spy_returns = stock_df["cumulative_SPY"].dropna()
+    figure, axes = plt.subplots(2, 1)
+    axes[0].plot(z_values)
+    axes[0].set_title("Z-Values vs Time")
+    axes[0].set_xlabel("Time")
+    axes[0].set_ylabel("Z-Values")
+    axes[1].plot(returns, label="returns")
+    axes[1].plot(spy_returns, label="spy_returns")
+    axes[1].set_title("Returns vs Time")
+    axes[1].set_xlabel("Time")
+    axes[1].set_ylabel("Returns")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("data.png")

@@ -16,7 +16,7 @@ def get_positions(stock_df: pd.DataFrame) -> None:
     stock_df["spy_position"] = 1
 
 
-def get_returns(values: pd.Series, position: pd.Series) -> pd.Series:
+def cumulative_returns(values: pd.Series, position: pd.Series) -> pd.Series:
     """
     Requires: Values and position are columns in stock_df
     Modifies: Nothing
@@ -24,4 +24,6 @@ def get_returns(values: pd.Series, position: pd.Series) -> pd.Series:
     """
     pct_change = values.pct_change()
     returns = position.shift(1) * pct_change
-    return returns
+    returns = returns.fillna(0)
+    cumulative_returns = (1 + returns).cumprod() - 1
+    return cumulative_returns
