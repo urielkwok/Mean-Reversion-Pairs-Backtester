@@ -10,7 +10,7 @@ def adf_test(series: pd.Series) -> bool:
     """
     result = sm.adfuller(series)
     print(f"Raw ADF: {result[0]:.4f}, p-value: {result[1]:.4f}")
-    if result[1] < 0.05:
+    if result[1] < 0.1:
         return True
     else:
         return False
