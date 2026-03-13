@@ -1,33 +1,19 @@
 import pandas as pd
+import numpy as np
 import statsmodels.tsa.stattools as sm
 
 
-def OLS_regression(ind_stock: pd.Series, dep_stock: pd.Series) -> tuple[float, float]:
+def rolling_adf_test(spread: pd.Series, WINDOW: int) -> pd.Series:
     """
     Requires: Nothing
     Modifies: Nothing
-    Effects: Alpha and Beta values for the two variables
+    Effects: Returns series of p-values for each date
     """
-    x = sm.add_constant(ind_stock)
-    y = dep_stock
-    regression = sm.OLS(y, x).fit()
-    alpha = regression.params.iloc[0]
-    beta = regression.params.iloc[1]
-    return alpha, beta
-
-
-def adf_test(spread: pd.Series) -> bool:
-    """
-    Requires: Nothing
-    Modifies: Nothing
-    Effects: True if series is stationary, False otherwise
-    """
-    result = sm.adfuller(spread.dropna())
-    print(f"Raw ADF: {result[0]:.4f}, p-value: {result[1]:.4f}")
-    if result[1] < 0.1:
-        return True
-    else:
-        return False
+    def get_p_value(x):
+        if len(x) < WINDOW or np.isnan(x).any():
+            return np.nan
+        return sm.adfuller(x)[1]
+    return spread.rolling(WINDOW).apply(get_p_value)
 
 
 def rolling_beta(df: pd.DataFrame, stock_1: str, stock_2: str, window) -> pd.Series:

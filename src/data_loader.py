@@ -2,7 +2,7 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime
 
-START_YEARS_AGO = 2
+START_YEARS_AGO = 3
 END_YEARS_AGO = 0
 
 

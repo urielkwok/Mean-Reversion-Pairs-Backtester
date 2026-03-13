@@ -2,18 +2,19 @@ import numpy as np
 import pandas as pd
 
 
-def get_positions(stock_df: pd.DataFrame) -> None:
+def get_positions(df: pd.DataFrame) -> None:
     """
-    Requires: z-scores calculated in stock_df
+    Requires: z-scores and adf p-values calculated in stock_df
     Modifies: stock_df
     Effects: Creates positions for each z-score
     """
-    stock_df["signal"] = 0
-    stock_df.loc[stock_df["z-score"] < -2, "signal"] = 1
-    stock_df.loc[stock_df["z-score"] > 2, "signal"] = -1
-    stock_df["position"] = stock_df["signal"].replace(0, np.nan).ffill().fillna(0)
-    stock_df.loc[stock_df["z-score"].abs() < 0.5, "position"] = 0
-    stock_df["spy_position"] = 1
+    df["is_stationary"] = df["adf_p_value"] < 0.05
+    df["signal"] = 0
+    df.loc[(df["z-score"] < -2) & (df["is_stationary"]), "signal"] = 1
+    df.loc[(df["z-score"] > 2) & (df["is_stationary"]), "signal"] = -1
+    df["position"] = df["signal"].replace(0, np.nan).ffill().fillna(0)
+    df.loc[df["z-score"].abs() < 0.5, "position"] = 0
+    df["spy_position"] = 1
 
 
 def cum_returns(df: pd.DataFrame, stock_1: str, stock_2: str, beta: pd.Series, WINDOW: int) -> pd.Series:
