@@ -4,11 +4,11 @@ import src.visualizer as vz
 import src.backtester as bt
 
 START_DATE, END_DATE = dl.get_dates()
-STOCK_1 = "DASH"
+STOCK_1 = "KO"
 STOCK_2 = "GRAB"
-ADF_WINDOW = 252
+ADF_WINDOW = 100
 BETA_WINDOW = 50
-Z_WINDOW = 30
+Z_WINDOW = 20
 
 df = dl.get_data(STOCK_1, STOCK_2, START_DATE, END_DATE)
 rolling_beta = an.rolling_beta(df, STOCK_1, STOCK_2, BETA_WINDOW)
