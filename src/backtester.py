@@ -24,9 +24,9 @@ def cum_returns(df: pd.DataFrame, stock_1: str, stock_2: str, beta: pd.Series, W
     Effects: Calculates total returns
     """
     commission_cost = 0.0005
-    s1_change = df[stock_1].diff()
-    s2_change = df[stock_2].diff()
-    pnl = df["position"].shift(1) * (s2_change - beta.shift(1) * s1_change)
+    stock_1_change = df[stock_1].diff()
+    stock_2_change = df[stock_2].diff()
+    pnl = df["position"].shift(1) * (stock_2_change - beta.shift(1) * stock_1_change)
     capital_required = df[stock_2] + (beta.abs() * df[stock_1])
     daily_returns = (pnl / capital_required).fillna(0)
     trade_made = df["position"].diff().fillna(0) != 0
