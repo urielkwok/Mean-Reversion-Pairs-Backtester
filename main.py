@@ -4,9 +4,9 @@ import src.visualizer as vz
 import src.backtester as bt
 
 START_DATE, END_DATE = dl.get_dates()
-STOCK_1 = "KO"
+STOCK_1 = "DASH"
 STOCK_2 = "GRAB"
-ADF_WINDOW = 100
+ADF_WINDOW = 252
 BETA_WINDOW = 50
 Z_WINDOW = 20
 
@@ -19,7 +19,7 @@ bt.get_positions(df)
 investment_price = (df[STOCK_2] + (rolling_beta * df[STOCK_1]))
 df["cum_returns"] = bt.cum_returns(df, STOCK_1, STOCK_2, rolling_beta, ADF_WINDOW)
 spy_returns = df["SPY"].pct_change().fillna(0)
-spy_returns = spy_returns[ADF_WINDOW:]
+spy_returns = spy_returns.iloc[ADF_WINDOW:]
 df["cum_SPY"] = spy_returns.cumsum()
 vz.plot_values(df)
-bt.get_measurements(df["cum_returns"], ADF_WINDOW)
+bt.get_measurements(df, ADF_WINDOW)

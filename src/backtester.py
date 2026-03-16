@@ -8,12 +8,14 @@ def get_positions(df: pd.DataFrame) -> None:
     Modifies: stock_df
     Effects: Creates positions for each z-score
     """
-    df["is_stationary"] = df["adf_p_value"] < 0.05
+    df["is_stationary"] = df["adf_p_value"] < 0.025
     df["signal"] = 0
     df.loc[(df["z-score"] < -2) & (df["is_stationary"]), "signal"] = 1
     df.loc[(df["z-score"] > 2) & (df["is_stationary"]), "signal"] = -1
     df["position"] = df["signal"].replace(0, np.nan).ffill().fillna(0)
-    df.loc[df["z-score"].abs() < 0.5, "position"] = 0
+    df.loc[df["z-score"].abs() < 0.1, "position"] = 0
+    df.loc[df["z-score"].abs() > 4, "position"] = 0
+    df["trade_made"] = df["position"].diff().fillna(0) != 0
     df["spy_position"] = 1
 
 
@@ -29,19 +31,18 @@ def cum_returns(df: pd.DataFrame, stock_1: str, stock_2: str, beta: pd.Series, W
     pnl = df["position"].shift(1) * (stock_2_change - beta.shift(1) * stock_1_change)
     capital_required = df[stock_2] + (beta.abs() * df[stock_1])
     daily_returns = (pnl / capital_required).fillna(0)
-    trade_made = df["position"].diff().fillna(0) != 0
-    daily_returns.loc[trade_made] -= commission_cost
-    daily_returns = daily_returns[WINDOW:]
+    daily_returns.loc[df["trade_made"] == True] -= commission_cost
+    daily_returns = daily_returns.iloc[WINDOW:]
     return daily_returns.cumsum()
 
 
-def get_measurements(cumulative_returns: pd.Series, rolling_window: int) -> None:
+def get_measurements(df: pd.DataFrame, rolling_window: int) -> None:
     """
     Requires: Nothing
     Modifies: Nothing
     Effects: Calculates sharpe ratio using cumulative_returns.
     """
-    cumulative_returns = cumulative_returns.iloc[rolling_window:]
+    cumulative_returns = df["cum_returns"]
     daily_returns = cumulative_returns.diff().fillna(0)
     sharpe_ratio = (daily_returns.mean() / daily_returns.std()) * (252 ** 0.5)
     print(f"sharpe ratio: {sharpe_ratio:.4f}")
@@ -55,3 +56,5 @@ def get_measurements(cumulative_returns: pd.Series, rolling_window: int) -> None
     drawdowns = (wealth_index - previous_peak) / previous_peak
     max_drawdown = drawdowns.min()
     print(f"max drawdown: {max_drawdown:.2%}")
+    total_trades = df["trade_made"].sum()
+    print(f"total trades: {total_trades}")
