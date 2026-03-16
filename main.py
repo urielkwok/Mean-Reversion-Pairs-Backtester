@@ -6,7 +6,7 @@ import src.backtester as bt
 START_DATE, END_DATE = dl.get_dates()
 STOCK_1 = "DASH"
 STOCK_2 = "GRAB"
-ADF_WINDOW = 252
+ADF_WINDOW = 504
 BETA_WINDOW = 50
 Z_WINDOW = 20
 
@@ -21,5 +21,5 @@ df["cum_returns"] = bt.cum_returns(df, STOCK_1, STOCK_2, rolling_beta, ADF_WINDO
 spy_returns = df["SPY"].pct_change().fillna(0)
 spy_returns = spy_returns.iloc[ADF_WINDOW:]
 df["cum_SPY"] = spy_returns.cumsum()
-vz.plot_values(df)
+vz.plot_values(df, ADF_WINDOW)
 bt.get_measurements(df, ADF_WINDOW)

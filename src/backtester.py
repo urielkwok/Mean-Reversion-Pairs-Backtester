@@ -8,13 +8,19 @@ def get_positions(df: pd.DataFrame) -> None:
     Modifies: stock_df
     Effects: Creates positions for each z-score
     """
-    df["is_stationary"] = df["adf_p_value"] < 0.025
+    df["is_stationary"] = df["adf_p_value"] < 0.01
     df["signal"] = 0
     df.loc[(df["z-score"] < -2) & (df["is_stationary"]), "signal"] = 1
     df.loc[(df["z-score"] > 2) & (df["is_stationary"]), "signal"] = -1
     df["position"] = df["signal"].replace(0, np.nan).ffill().fillna(0)
-    df.loc[df["z-score"].abs() < 0.1, "position"] = 0
+    df["z_sign_change"] = (df["z-score"] * df["z-score"].shift(1)) <= 0
+    df.loc[df["z_sign_change"], "position"] = 0
     df.loc[df["z-score"].abs() > 4, "position"] = 0
+    is_trade = df["position"].abs()
+    df["trade_length"] = is_trade.groupby((is_trade == 0).cumsum()).cumsum()
+    df.loc[df["trade_length"] >= 50, "position"] = 0
+    exit_signal = df["signal"] == 0
+    df.loc[(df["position"].shift(1) == 0) & (exit_signal), "position"] = 0
     df["trade_made"] = df["position"].diff().fillna(0) != 0
     df["spy_position"] = 1
 
@@ -42,7 +48,7 @@ def get_measurements(df: pd.DataFrame, rolling_window: int) -> None:
     Modifies: Nothing
     Effects: Calculates sharpe ratio using cumulative_returns.
     """
-    cumulative_returns = df["cum_returns"]
+    cumulative_returns = df["cum_returns"].iloc[rolling_window:]
     daily_returns = cumulative_returns.diff().fillna(0)
     sharpe_ratio = (daily_returns.mean() / daily_returns.std()) * (252 ** 0.5)
     print(f"sharpe ratio: {sharpe_ratio:.4f}")
