@@ -22,7 +22,7 @@ def plot_values(df: pd.DataFrame, window: int) -> None:
     axes[1].set_xlabel("Time")
     axes[1].set_ylabel("Z-Scores")
     axes[2].plot(returns * 100, label="returns")
-    axes[2].plot(spy_returns * 100, label="spy_returns")
+    axes[2].plot(spy_returns * 100, label="SPY_returns")
     axes[2].set_title("Returns vs Time")
     axes[2].set_xlabel("Time")
     axes[2].set_ylabel("Returns (%)")

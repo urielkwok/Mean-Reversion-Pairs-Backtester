@@ -3,17 +3,20 @@ import numpy as np
 import statsmodels.tsa.stattools as sm
 
 
-def rolling_adf_test(spread: pd.Series, WINDOW: int) -> pd.Series:
+def rolling_adf_test(df: pd.DataFrame, stock_1: str, stock_2: str, window: int) -> pd.Series:
     """
     Requires: Nothing
     Modifies: Nothing
     Effects: Returns series of p-values for each date
     """
+    beta = rolling_beta(df, stock_1, stock_2, window)
+    spread = df[stock_2] - (beta * df[stock_1])
+
     def get_p_value(x):
-        if len(x) < WINDOW or np.isnan(x).any():
+        if len(x) < window or np.isnan(x).any():
             return np.nan
         return sm.adfuller(x)[1]
-    return spread.rolling(WINDOW).apply(get_p_value)
+    return spread.rolling(window).apply(get_p_value)
 
 
 def rolling_beta(df: pd.DataFrame, stock_1: str, stock_2: str, window) -> pd.Series:
@@ -28,12 +31,12 @@ def rolling_beta(df: pd.DataFrame, stock_1: str, stock_2: str, window) -> pd.Ser
     return rolling_beta
 
 
-def rolling_z_score(series: pd.Series, window: int) -> pd.Series:
+def rolling_z_score(spread: pd.Series, window: int) -> pd.Series:
     """
     Requires: Nothing
     Modifies: Nothing
     Effects: Rolling z-score for each entry
     """
-    rolling_mean = series.rolling(window).mean()
-    rolling_std = series.rolling(window).std()
-    return (series - rolling_mean) / rolling_std
+    rolling_mean = spread.rolling(window).mean()
+    rolling_std = spread.rolling(window).std()
+    return (spread - rolling_mean) / rolling_std
