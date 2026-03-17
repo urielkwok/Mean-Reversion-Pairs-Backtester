@@ -8,10 +8,12 @@ def get_positions(df: pd.DataFrame) -> None:
     Modifies: stock_df
     Effects: Creates positions for each z-score
     """
-    df["is_stationary"] = df["adf_p_value"] < 0.01
+    df["is_stationary"] = df["adf_p_value"] < 0.05
+    df["is_related"] = df["correlation"] > 0.8
     df["signal"] = 0
-    df.loc[(df["z-score"] < -2) & (df["is_stationary"]), "signal"] = 1
-    df.loc[(df["z-score"] > 2) & (df["is_stationary"]), "signal"] = -1
+    enter = (df["is_stationary"]) & (df["is_related"])
+    df.loc[(df["z-score"] < -2) & enter, "signal"] = 1
+    df.loc[(df["z-score"] > 2) & enter, "signal"] = -1
     df["position"] = df["signal"].replace(0, np.nan).ffill().fillna(0)
     df["z_sign_change"] = (df["z-score"] * df["z-score"].shift(1)) <= 0
     df.loc[df["z_sign_change"], "position"] = 0
