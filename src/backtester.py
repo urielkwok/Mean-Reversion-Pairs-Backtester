@@ -13,7 +13,7 @@ def get_positions(df: pd.DataFrame) -> None:
     df.loc[(df["z-score"] < -2) & enter, "signal"] = 1
     df.loc[(df["z-score"] > 2) & enter, "signal"] = -1
     df["position"] = df["signal"].replace(0, np.nan).ffill().fillna(0)
-    exit = (df["adf_p_value"] > 0.2) | (df["correlation"] < 0.5)
+    exit = (df["adf_p_value"] > 0.15) | (df["correlation"] < 0.5)
     df.loc[exit, "position"] = 0
     df["z_sign_change"] = (df["z-score"] * df["z-score"].shift(1)) <= 0
     df.loc[df["z_sign_change"], "position"] = 0
