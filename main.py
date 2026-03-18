@@ -4,10 +4,10 @@ import src.visualizer as vz
 import src.backtester as bt
 
 START_DATE, END_DATE = dl.get_dates()
-STOCK_1 = "AMZN"
-STOCK_2 = "GOOGL"
-ADF_WINDOW = 252
-BETA_WINDOW = 60
+STOCK_1 = "GRAB"
+STOCK_2 = "DASH"
+ADF_WINDOW = 100
+BETA_WINDOW = 30
 Z_WINDOW = 20
 
 df = dl.get_data(STOCK_1, STOCK_2, START_DATE, END_DATE)
