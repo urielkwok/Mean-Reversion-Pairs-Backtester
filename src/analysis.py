@@ -13,9 +13,11 @@ def rolling_adf_test(df: pd.DataFrame, stock_1: str, stock_2: str, window: int) 
     spread = df[stock_2] - (beta * df[stock_1])
 
     def get_p_value(x):
+        # Make sure that no nan values in our window
         if len(x) < window or np.isnan(x).any():
             return np.nan
         return sm.adfuller(x)[1]
+
     return spread.rolling(window).apply(get_p_value)
 
 
