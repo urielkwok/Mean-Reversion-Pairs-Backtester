@@ -16,15 +16,15 @@ The following results were generated using a 100-day rolling ADF window and a Z-
 ## Methodology
 1. **Spread Formation:** The bot uses **Ordinary Least Squares** Regression over a set rolling window to find the optimal hedge ratio ($\beta$). I do this twice within the backtester for validation of a cointegrated relationship, and execution of trading signals. The formula I used for this is: 
 
-$$\text{Spread}_t = \text{Price}_{A,t} - (\beta \times \text{Price}_{B,t})$$
+    $$\text{Spread}_t = \text{Price}_{A,t} - (\beta \times \text{Price}_{B,t})$$
 
-Where $\beta$ represents the relationship between the two assets.
+    Where $\beta$ represents the relationship between the two assets.
 
 2. **Cointegration:** The backtester uses a **100-day** lookback window to create a spread on which it performs an **Augmented Dickey-Fuller test**, in turn generating a p-value for cointegration between the two stocks. Since the ADF test evaluates the **stationarity** of the pair, we are looking for low p-values, which indicate that the spread's mean and variance are stable over time. This is repeated for each day in the market to ensure that the relationship holds.
 
 3. **Signal:** A second, shorter lookback window of **30 days** is used to calculate more recent $\beta$ values, creating a more responsive spread. A **rolling Z-score** is then calculated, using a lookback window of 20 days. This is calculated by subtracting the rolling mean ($\mu$) from the current spread and then dividing by the rolling standard deviation ($\sigma$): 
 
-$$Z = \frac{x - \mu}{\sigma}$$
+    $$Z = \frac{x - \mu}{\sigma}$$
 
 4. **Position Generation:** The backtester has 2 main conditions for entry. Namely, the **p-value of the rolling ADF test must be < 0.1**, and the **correlation between the two stocks must be > 0.8**. If both conditions are met, the backtester then **shorts the spread whenever the Z-score is > 2**, and goes **long when the z-score is < -2**. It then maintains this position until the **z-score crosses 0**, as this maximizes profits from reversion.
 
@@ -32,7 +32,7 @@ $$Z = \frac{x - \mu}{\sigma}$$
 
 6. **Returns Calculation:** The backtester calculates a percentage return by dividing our **daily PnL** from our hedged spread by the **capital required** to hold the spread. To ensure that no look-ahead bias is present, our daily PnL uses position and hedge ratio values from the **previous day**, combined with changes in stock prices from the **current day**. Additionally, every time we enter a new position that is different from the previous day, a cost of **-0.05%** is incurred in order to account for **commission costs** and **slippage**. Daily percentage changes are then summed up to create **cumulative returns**.
 
-7. **Data Analysis:** The backtester then calculates multiple metrics, including a **sharpe ratio**, **annualized returns**, **max drawdown**, and **total trades**. Additionally, the backtester also utilises MatPlotLib to plot the **Z-scores**, **Spread**, and **Returns** vs time, along with a baseline comparison to **SPY Returns**.
+7. **Data Analysis:** The backtester then calculates multiple metrics, including a **sharpe ratio**, **annualized returns**, **max drawdown**, and **total trades**. Additionally, the backtester also utilises MatPlotLib to plot the **Z-scores**, **Spread**, and **Returns vs time**, along with a baseline comparison to **SPY Returns**.
 
 ## Benefits of the model
 The model uses rigorous tests on past data to ensure that trades will have a high chance of success. This can be seen through the high sharpe ratio and low max drawdown in both pairs, offering a safer alternative to the SPY where trades will result in profits with reduced risk. Although it was outperformed, the MU and NVDA pair managed to produce **annualized returns of 9.25%**, which was only overshadowed due to a recent bull run in the market causing the SPY to rise quickly. However, **this strategy does well regardless of market conditions**, as one stock is always being shorted while the other one is being held long. This can be seen by the consistent returns with every trade, as the backtester manages to generate profits even when the market trends downwards.
